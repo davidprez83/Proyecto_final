@@ -355,3 +355,56 @@ def animacion_2d_tierra_apophis(
     plt.show()
 
   return fig, ani
+
+
+def rotacion_peri_astronomico(r_rel, v_rel, Omega, I, omega):
+  """Rota un vector de posición y velocidad desde el marco perifocal al inercial.
+
+  Parametros
+  ----------
+  r_rel : array-like
+      Vector de posición relativo (ts, 3).
+  v_rel : array-like
+      Vector de velocidad relativo (ts, 3).
+  Omega : float
+      Ascensión recta del nodo ascendente en radianes.
+  I : float
+      Inclinación orbital en radianes.
+  omega : float
+      Argumento del periastro en radianes.
+
+  Retorna
+  -------
+  r_inercial : np.ndarray
+      Vector de posición en el marco inercial (ts, 3).
+  v_inercial : np.ndarray
+      Vector de velocidad en el marco inercial (ts, 3).
+  """
+  # Convertir ángulos a radianes
+  Omega_rad = Omega
+  i_rad = I
+  omega_rad = omega
+
+  # Matriz de rotación perifocal a inercial
+  R = np.array([
+    [
+      np.cos(Omega_rad) * np.cos(omega_rad) - np.sin(Omega_rad) * np.sin(omega_rad) * np.cos(i_rad),
+      -np.cos(Omega_rad) * np.sin(omega_rad) - np.sin(Omega_rad) * np.cos(omega_rad) * np.cos(i_rad),
+      np.sin(Omega_rad) * np.sin(i_rad)
+    ],
+    [
+      np.sin(Omega_rad) * np.cos(omega_rad) + np.cos(Omega_rad) * np.sin(omega_rad) * np.cos(i_rad),
+      -np.sin(Omega_rad) * np.sin(omega_rad) + np.cos(Omega_rad) * np.cos(omega_rad) * np.cos(i_rad),
+      -np.cos(Omega_rad) * np.sin(i_rad)
+    ],
+    [
+      np.sin(omega_rad) * np.sin(i_rad),
+      np.cos(omega_rad) * np.sin(i_rad),
+      np.cos(i_rad)
+    ]
+  ])
+
+  r_inercial = R @ r_rel
+  v_inercial = R @ v_rel
+
+  return r_inercial, v_inercial
